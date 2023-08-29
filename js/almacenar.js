@@ -1,48 +1,58 @@
 document.addEventListener("DOMContentLoaded", () => {
   const itemInput = document.getElementById("item");
-  const item2Imput = document.getElementById("item2");
+  const item2Input = document.getElementById("item2");
   const addButton = document.getElementById("agregar");
-  const deleteButton = document.getElementById("borrar"); // Changed the button ID
   const contenedor = document.getElementById("contenedor");
 
   let storedItems = JSON.parse(localStorage.getItem("items")) || [];
+  storedItems = storedItems.filter(item => item !== null && item !== undefined);
   updateList(storedItems);
 
   addButton.addEventListener("click", () => {
-    const newItem = itemInput.value.trim() + " - " + item2Imput.value.trim();
-    if (newItem !== "") {
-      storedItems.push(newItem);
+    const newName = itemInput.value.trim();
+    const newPhone = item2Input.value.trim();
+    if (newName !== "" && newPhone !== "") {
+      storedItems.push({ name: newName, phone: newPhone });
       localStorage.setItem("items", JSON.stringify(storedItems));
       updateList(storedItems);
       itemInput.value = "";
-      item2Imput.value = "";
+      item2Input.value = "";
     }
-  });
-
-  deleteButton.addEventListener("click", () => {
-
-    storedItems.pop(); 
-    localStorage.setItem("items", JSON.stringify(storedItems));
-    updateList(storedItems);
   });
 
   function updateList(items) {
     contenedor.innerHTML = "";
-    items.forEach((item, index) => {
+    items.forEach((contact, index) => {
       const li = document.createElement("li");
       li.classList.add("list-group-item");
-      li.innerText = item;
+      li.innerHTML = `
+        <span class="contact-name">${contact.name}</span>
+        <span class="contact-phone">${contact.phone}</span>
+        <button class="btn btn-outline-danger btn-sm float-end delete-button">Borrar</button>
+        <button class="btn btn-outline-primary btn-sm float-end edit-button">Editar</button>
+      `;
 
-      const deleteContactButton = document.createElement("button");
-      deleteContactButton.classList.add("btn", "btn-outline-danger", "btn-sm", "float-end");
-      deleteContactButton.innerText = "Borrar";
+      const deleteContactButton = li.querySelector(".delete-button");
       deleteContactButton.addEventListener("click", () => {
         storedItems.splice(index, 1);
         localStorage.setItem("items", JSON.stringify(storedItems));
         updateList(storedItems);
       });
 
-      li.appendChild(deleteContactButton);
+      const editContactButton = li.querySelector(".edit-button");
+      editContactButton.addEventListener("click", () => {
+        const newName = prompt("Editar nombre:", contact.name);
+        if (newName !== null) {
+          const newPhone = prompt("Editar teléfono:", contact.phone);
+          if (newPhone !== null) {
+            contact.name = newName;
+            contact.phone = newPhone;
+            localStorage.setItem("items", JSON.stringify(storedItems));
+            updateList(storedItems);
+          }
+        }
+      });
+
       contenedor.appendChild(li);
     });
   }
