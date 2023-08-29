@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const item2Input = document.getElementById("item2");
   const addButton = document.getElementById("agregar");
   const contenedor = document.getElementById("contenedor");
+  const searchButton = document.getElementById("search-button");
+  const searchInput = document.getElementById("search");
 
   let storedItems = JSON.parse(localStorage.getItem("items")) || [];
   storedItems = storedItems.filter(item => item !== null && item !== undefined);
@@ -18,6 +20,17 @@ document.addEventListener("DOMContentLoaded", () => {
       itemInput.value = "";
       item2Input.value = "";
     }
+  });
+  
+  
+  searchButton.addEventListener("click", () => {
+    const searchTerm = searchInput.value.trim();
+    const filteredItems = storedItems.filter(item => {
+      const itemName = item.name || ""; // Manejo de valor nulo/undefined
+      const itemPhone = item.phone || ""; // Manejo de valor nulo/undefined
+      return itemName.includes(searchTerm) || itemPhone.includes(searchTerm);
+    });
+    updateList(filteredItems);
   });
 
   function updateList(items) {
